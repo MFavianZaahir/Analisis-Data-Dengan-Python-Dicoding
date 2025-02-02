@@ -16,9 +16,14 @@ st.markdown(
 
 @st.cache_data  # Mengganti st.cache dengan st.cache_data
 def load_data():
-    folder_path = "../air_quality_datasets"
+    # Sesuaikan path dengan struktur folder GitHub
+    base_path = os.path.dirname(os.path.abspath(__file__))  # Path file dashboard.py
+    folder_path = os.path.abspath(os.path.join(base_path, "../air_quality_datasets"))
     
-    # Handle path untuk OS berbeda
+    # Debugging untuk Streamlit Cloud
+    st.write("Base path:", base_path)
+    st.write("Absolute folder path:", folder_path)
+    
     csv_files = glob.glob(os.path.join(folder_path, "*.csv"))
     
     # Debugging: Tampilkan file yang ditemukan
