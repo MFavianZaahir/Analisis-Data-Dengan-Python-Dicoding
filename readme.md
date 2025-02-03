@@ -33,14 +33,13 @@ pip install -r requirements.txt
 
 ```bash
 git clone https://github.com/MFavianZaahir/tugas_akhir
-cd air-quality-analysis
 ```
 
 2. Run the Streamlit dashboard:
 
 ```bash
 cd dashboard
-streamlit run dashboard/dashboard.py
+streamlit run dashboard.py
 ```
 
 [Streamlit link](https://airqualityanalytics.streamlit.app/)
