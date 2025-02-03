@@ -15,11 +15,11 @@
 ### Prerequisites
 
 Make sure you have **Python 3.12** installed along with the following libraries:
--matplotlib
--pandas
--seaborn
--streamlit
--numpy
+- matplotlib
+- pandas
+- seaborn
+- streamlit
+- numpy
 
 You can install all dependencies using the `requirements.txt` file:
 
@@ -43,4 +43,4 @@ cd dashboard
 streamlit run dashboard/dashboard.py
 ```
 
-Checkout the website: https://airqualityanalytics.streamlit.app/
+[Streamlit link](https://airqualityanalytics.streamlit.app/)

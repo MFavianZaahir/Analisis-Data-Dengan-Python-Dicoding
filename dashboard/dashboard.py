@@ -14,51 +14,42 @@ st.markdown(
 """
 )
 
-@st.cache_data  # Mengganti st.cache dengan st.cache_data
+@st.cache_data
 def load_data():
-    # Sesuaikan path dengan struktur folder GitHub
-    base_path = os.path.dirname(os.path.abspath(__file__))  # Path file dashboard.py
+    base_path = os.path.dirname(os.path.abspath(__file__))
     folder_path = os.path.abspath(os.path.join(base_path, "../air_quality_datasets"))
     
-    # Debugging untuk Streamlit Cloud
     st.write("Base path:", base_path)
     st.write("Absolute folder path:", folder_path)
     
     csv_files = glob.glob(os.path.join(folder_path, "*.csv"))
     
-    # Debugging: Tampilkan file yang ditemukan
     print(f"Found {len(csv_files)} CSV files")
     
-    # Handle case tidak ada file CSV
     if not csv_files:
         raise ValueError("Tidak ada file CSV yang ditemukan di folder yang ditentukan")
     
     df_list = []
     for file in csv_files:
         try:
-            # Skip file kosong
             if os.path.getsize(file) > 0:
                 df = pd.read_csv(file)
-                # Pastikan kolom yang diperlukan ada
                 if {'year', 'month', 'day', 'hour'}.issubset(df.columns):
                     df_list.append(df)
         except Exception as e:
             print(f"Error membaca file {file}: {str(e)}")
     
-    # Handle case semua file error/kosong
     if not df_list:
         raise ValueError("Tidak ada data yang valid untuk diproses")
     
     combined_df = pd.concat(df_list, ignore_index=True)
     
-    # Handle missing dates
     combined_df['date'] = pd.to_datetime(
         combined_df[['year', 'month', 'day', 'hour']].astype(str).agg('-'.join, axis=1) + ':00:00',
         format='%Y-%m-%d-%H:%M:%S',
         errors='coerce'
     )
     
-    # Handle missing values
     combined_df['PM2.5'] = combined_df.groupby('station')['PM2.5'].transform(
         lambda x: x.fillna(x.median() if not x.isnull().all() else 0)
     )
@@ -71,7 +62,6 @@ except ValueError as e:
     st.error(str(e))
     st.stop()
 
-# Sidebar Filter
 st.sidebar.header('Filter Data')
 selected_stations = st.sidebar.multiselect(
     'Pilih Stasiun',
@@ -79,7 +69,6 @@ selected_stations = st.sidebar.multiselect(
     default=[df['station'].unique()[0]] if len(df['station'].unique()) > 0 else []
 )
 
-# Handle date input dengan aman
 try:
     min_date = df['date'].min().date()
     max_date = df['date'].max().date()
@@ -90,14 +79,12 @@ except AttributeError:
 start_date = st.sidebar.date_input('Tanggal Awal', min_date)
 end_date = st.sidebar.date_input('Tanggal Akhir', max_date)
 
-# Filter Data
 filtered_df = df[
     (df['station'].isin(selected_stations)) &
     (df['date'] >= pd.to_datetime(start_date)) &
     (df['date'] <= pd.to_datetime(end_date))
 ]
 
-# Visualisasi Tren PM2.5
 st.subheader('Tren PM2.5 per Stasiun')
 if not filtered_df.empty and not filtered_df['date'].isnull().all():
     fig, ax = plt.subplots(figsize=(12,6))
@@ -112,8 +99,6 @@ if not filtered_df.empty and not filtered_df['date'].isnull().all():
     st.pyplot(fig)
 else:
     st.write('Tidak ada data yang dipilih atau data tanggal tidak valid.')
-
-# Visualisasi lainnya tetap sama...
 
 st.subheader('Korelasi PM2.5 dengan Faktor Meteorologi')
 corr_matrix = filtered_df[['PM2.5', 'TEMP', 'PRES', 'WSPM', 'DEWP']].corr()
